@@ -1,0 +1,11 @@
+services:
+
+  mqtt:
+    container_name: fpv-mqtt
+    image: eclipse-mosquitto:1.6
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./docker/mosquitto:/mosquitto/config
+      - ./volumes/mosquitto/data:/mosquitto/data
+      - ./volumes/mosquitto/log:/mosquitto/log
