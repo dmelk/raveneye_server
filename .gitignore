@@ -2,3 +2,4 @@ volumes/*
 docker/mosquitto/pwfile
 .venv
 .vscode
+config.json
