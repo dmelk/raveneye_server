@@ -1,2 +1,4 @@
 volumes/*
 docker/mosquitto/pwfile
+.venv
+.vscode
