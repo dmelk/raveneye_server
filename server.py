@@ -55,3 +55,21 @@ if __name__ == '__main__':
                 "action": "prev",
                 "tuner_idx": 0,
             }))
+        if (user_input == 'scan1'):
+            client.publish(scanner_in, json.dumps({
+                "scanner_id": scanner_id,
+                "action": "scan",
+                "tuner_idx": 1,
+            }))
+        if (user_input == 'next1'):
+            client.publish(scanner_in, json.dumps({
+                "scanner_id": scanner_id,
+                "action": "next",
+                "tuner_idx": 1,
+            }))
+        if (user_input == 'prev1'):
+            client.publish(scanner_in, json.dumps({
+                "scanner_id": scanner_id,
+                "action": "prev",
+                "tuner_idx": 1,
+            }))
