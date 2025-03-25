@@ -9,3 +9,23 @@ services:
       - ./docker/mosquitto:/mosquitto/config
       - ./volumes/mosquitto/data:/mosquitto/data
       - ./volumes/mosquitto/log:/mosquitto/log
+
+  redis:
+    container_name: fpv-redis
+    image: redis:6.0
+    volumes:
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./volumes/redis/data:/data
+
+  fastapi:
+    container_name: fpv-fastapi
+    build:
+      context: .
+      dockerfile: ./docker/python/Dockerfile
+    volumes:
+      - ./app:/app
+    ports:
+      - "80:80"
+    depends_on:
+      - mqtt
+      - redis

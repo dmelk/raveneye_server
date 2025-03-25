@@ -3,3 +3,6 @@ docker/mosquitto/pwfile
 .venv
 .vscode
 config.json
+.idea
+._*
+app/.env

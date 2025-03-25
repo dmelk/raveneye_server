@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+asyncpg
+python-dotenv
+loguru
+paho-mqtt
+websockets
+redis[hiredis]
