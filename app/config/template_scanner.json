@@ -1,0 +1,13 @@
+{
+  "scanner-1": {
+    "name": "Scanner 1",
+    "tuners": [
+        {
+            "name": "4.9-6 GHz"
+        },
+        {
+            "name": "0.9-1.8 Ghz"
+        }
+    ]
+  }
+}

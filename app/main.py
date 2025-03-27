@@ -6,7 +6,7 @@ load_dotenv()
 
 service_container.setup_services()
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 app.include_router(scanners.router)
 

@@ -6,3 +6,4 @@ config.json
 .idea
 ._*
 app/.env
+app/config/scanner.json

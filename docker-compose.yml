@@ -10,13 +10,6 @@ services:
       - ./volumes/mosquitto/data:/mosquitto/data
       - ./volumes/mosquitto/log:/mosquitto/log
 
-  redis:
-    container_name: fpv-redis
-    image: redis:6.0
-    volumes:
-      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-      - ./volumes/redis/data:/data
-
   fastapi:
     container_name: fpv-fastapi
     build:
@@ -24,8 +17,28 @@ services:
       dockerfile: ./docker/python/Dockerfile
     volumes:
       - ./app:/app
-    ports:
-      - "80:80"
+    expose:
+      - "8000"
     depends_on:
       - mqtt
-      - redis
+
+  frontend:
+    container_name: fpv-frontend
+    command: /run.sh
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+    volumes:
+      - ./frontend:/app
+      - ./docker/frontend/run.sh:/run.sh
+
+  web:
+    container_name: fpv-web
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/build:/app:ro
+    depends_on:
+      - fastapi

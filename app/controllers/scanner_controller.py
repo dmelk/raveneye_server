@@ -1,8 +1,13 @@
 from services.message_bus import MessageBus
+from services.scanner_config import ScannerConfig
 
 class ScannerController:
-    def __init__(self, message_bus: MessageBus):
+    def __init__(self, message_bus: MessageBus, scanner_config: ScannerConfig):
         self._message_bus = message_bus
+        self._scanner_config = scanner_config
+
+    def list(self):
+        return self._scanner_config.get_scanners()
 
     def scan(self, scanner_id, tuner_id):
         self._message_bus.send({
