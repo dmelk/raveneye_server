@@ -14,8 +14,8 @@ class ServiceContainer:
     def get_service(self, name):
         return self.services[name]
 
-    def add_message_bus(self, broker, port, username, password):
-        message_bus = MessageBus(broker, port, username, password)
+    def add_message_bus(self, broker, port, username, password, websocket_manager: WebsocketManager):
+        message_bus = MessageBus(broker, port, username, password, websocket_manager)
         message_bus.start()
         self.add_service('message_bus', message_bus)
 
@@ -47,13 +47,13 @@ class ServiceContainer:
         # Load scanner config into memory
         self.add_scanner_config(os.getenv("SCANNER_CONFIG_PATH"))
 
-        # MQTT Client Setup
-        self.add_message_bus(os.getenv("MQTT_BROKER"), int(os.getenv("MQTT_PORT")), os.getenv("MQTT_USER"),
-                                          os.getenv("MQTT_PASSWORD"))
-        self.message_bus().start()
-
         # Websocket Manager Setup
         self.add_websocket_manager()
+
+        # MQTT Client Setup
+        self.add_message_bus(os.getenv("MQTT_BROKER"), int(os.getenv("MQTT_PORT")), os.getenv("MQTT_USER"),
+                                          os.getenv("MQTT_PASSWORD"), self.websocket_manager())
+        self.message_bus().start()
 
         # Scanner controller setup
         self.add_scanner_controller()

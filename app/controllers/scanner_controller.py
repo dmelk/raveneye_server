@@ -9,55 +9,55 @@ class ScannerController:
     def list(self):
         return self._scanner_config.get_scanners()
 
-    def scan(self, scanner_id, tuner_id):
+    def scan(self, scanner_id, tuner_idx):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "scan",
-            "tuner_id": tuner_id
+            "tuner_idx": tuner_idx
         })
 
-    def next(self, scanner_id, tuner_id):
+    def next(self, scanner_id, tuner_idx):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "next",
-            "tuner_id": tuner_id
+            "tuner_idx": tuner_idx
         })
 
-    def prev(self, scanner_id, tuner_id):
+    def prev(self, scanner_id, tuner_idx):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "prev",
-            "tuner_id": tuner_id
+            "tuner_idx": tuner_idx
         })
 
-    def stop(self, scanner_id, tuner_id):
+    def stop(self, scanner_id, tuner_idx):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "stop",
-            "tuner_id": tuner_id
+            "tuner_idx": tuner_idx
         })
 
-    def skip(self, scanner_id, tuner_id):
+    def skip(self, scanner_id, tuner_idx):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "skip",
-            "tuner_id": tuner_id
+            "tuner_idx": tuner_idx
         })
 
-    def clear_skip(self, scanner_id, tuner_id, value, all_values):
+    def clear_skip(self, scanner_id, tuner_idx, value, all_values):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "clear_skip",
-            "tuner_id": tuner_id,
+            "tuner_idx": tuner_idx,
             "value": value,
             "all": all_values
         })
 
-    def tune(self, scanner_id, tuner_id, value):
-        rssi_threshold = 1000 - value
+    def tune(self, scanner_id, tuner_idx, value):
+        rssi_threshold = 1000 - value * 3
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "tune",
-            "tuner_id": tuner_id,
+            "tuner_idx": tuner_idx,
             "value": rssi_threshold
         })

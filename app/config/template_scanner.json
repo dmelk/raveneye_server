@@ -1,6 +1,7 @@
 {
   "scanner-1": {
     "name": "Scanner 1",
+    "status": "waiting",
     "tuners": [
         {
             "name": "4.9-6 GHz"

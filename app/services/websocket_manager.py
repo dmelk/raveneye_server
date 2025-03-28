@@ -15,4 +15,7 @@ class WebsocketManager:
     async def send_message(self, message):
         payload = json.dumps(message)
         for client in self._clients:
-            await client.send_text(payload)
+            try:
+                await client.send_text(payload)
+            except Exception as e:
+                print(f"Error sending message to client: {e}")

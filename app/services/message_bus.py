@@ -1,5 +1,9 @@
 import paho.mqtt.client as mqtt
 import json
+import asyncio
+
+from services.websocket_manager import WebsocketManager
+
 
 class MessageBus:
     _broker = ''
@@ -7,15 +11,17 @@ class MessageBus:
     _username = ''
     _password = ''
     _client = None
+    _websocket_manager = None
 
     _in_topic = 'scanner_out'
     _out_topic = 'scanner_in'
 
-    def __init__(self, broker, port, username, password):
+    def __init__(self, broker, port, username, password, websocket_manager: WebsocketManager):
         self._broker = broker
         self._port = port
         self._username = username
         self._password = password
+        self._websocket_manager = websocket_manager
 
     def start(self):
         self._client = mqtt.Client()
@@ -31,7 +37,8 @@ class MessageBus:
         self._client.subscribe(self._in_topic)
 
     def on_message(self, client, userdata, msg):
-        print(f"Received message: {msg.payload.decode()} on topic {msg.topic}")
+        payload = json.loads(msg.payload)
+        asyncio.run(self._websocket_manager.send_message(payload))
 
     def send(self, message):
         self._client.publish(self._out_topic, json.dumps(message))
