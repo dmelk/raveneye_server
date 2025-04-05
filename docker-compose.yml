@@ -10,6 +10,16 @@ services:
       - ./volumes/mosquitto/data:/mosquitto/data
       - ./volumes/mosquitto/log:/mosquitto/log
 
+  scanner_emulator:
+    image: python:3.13-slim
+    container_name: fpv-scanner-emulator
+    command: /run.sh
+    volumes:
+      - ./scanner_emulator:/app
+      - ./docker/scanner_emulator/run.sh:/run.sh
+    depends_on:
+      - mqtt
+
   fastapi:
     container_name: fpv-fastapi
     build:

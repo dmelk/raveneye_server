@@ -1,0 +1,29 @@
+{
+    "id": "test-scanner",
+    "mqtt": {
+        "host": "mqtt",
+        "port": 1883,
+        "user": "admin",
+        "password": "password"
+    },
+    "tuners": [
+        {
+            "name": "4.9-6 GHz",
+            "type": "rx5808",
+            "rssi_threshold": 840,
+            "createArgs": {
+                "min": 0,
+                "max": 88
+            }
+        },
+        {
+            "name": "4.9-6 GHz",
+            "type": "rx5808",
+            "rssi_threshold": 840,
+            "createArgs": {
+                "min": 0,
+                "max": 88
+            }
+        }
+    ]
+}

@@ -54,10 +54,9 @@ class ScannerController:
         })
 
     def tune(self, scanner_id, tuner_idx, value):
-        rssi_threshold = 1000 - value * 3
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "tune",
             "tuner_idx": tuner_idx,
-            "value": rssi_threshold
+            "value": value
         })
