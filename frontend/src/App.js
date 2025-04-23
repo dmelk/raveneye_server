@@ -12,8 +12,8 @@ function App() {
     const data = JSON.parse(event.data);
     setScanners(prevScanners => {
       const updatedScanners = { ...prevScanners };
+      updatedScanners[data.scanner_id].ping_lost = 0;
 
-      console.log(data);
       if (data.action === 'ping') {
         updatedScanners[data.scanner_id].status = 'online';
         for (let i = 0; i < data.tuner_configs.length; i++) {
@@ -50,6 +50,23 @@ function App() {
       websocketService.close();
     }
   }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScanners(prevScanners => {
+        const updatedScanners = { ...prevScanners };
+        for (const scannerId in updatedScanners) {
+          updatedScanners[scannerId].ping_lost++;
+          if (updatedScanners[scannerId].ping_lost > 5) {
+            updatedScanners[scannerId].status = 'offline';
+          }
+        }
+        return updatedScanners;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="App">

@@ -38,34 +38,30 @@ function Tuner({scannerId, tunerId, config}) {
       <Grid size={12}>
         <h2>{config.name}</h2>
       </Grid>
-      <Grid size={6}>
+      <Grid size={3}>
         Частота: {typeof config.frequency === 'undefined' ? 'N/A' : config.frequency}
-      </Grid>
-      <Grid size={6}>
-        Сканування: {typeof config.scanning === 'undefined' || config.scanning === false ? 'Ні' : 'Так'}
       </Grid>
       <Grid size={3}>
         <Button variant={'contained'} onClick={handlePrev}>
           <SkipPreviousIcon/>
         </Button>
-      </Grid>
-      <Grid size={3}>
         <Button variant={'contained'} onClick={handleNext}>
           <SkipNextIcon/>
         </Button>
       </Grid>
       <Grid size={3}>
+        Сканування: {typeof config.scanning === 'undefined' || config.scanning === false ? 'Ні' : 'Так'}
+      </Grid>
+      <Grid size={3}>
         <Button variant={'contained'} onClick={handleScan}>
           <SearchIcon/>
         </Button>
-      </Grid>
-      <Grid size={3}>
         <Button variant={'contained'} onClick={handleStopScan}>
           <StopIcon/>
         </Button>
       </Grid>
       <Grid size={3}>
-        <h3>Чутливість</h3>
+        Чутливість
       </Grid>
       <Grid size={6}>
         <Slider
