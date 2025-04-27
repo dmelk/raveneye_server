@@ -7,3 +7,6 @@ config.json
 ._*
 app/.env
 app/config/scanner.json
+docker-compose.override.yml
+scanner_emulator/scanner_config.json
+.env

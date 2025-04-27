@@ -1,27 +1,22 @@
 services:
 
   mqtt:
-    container_name: fpv-mqtt
-    image: eclipse-mosquitto:1.6
+    container_name: raven-eye-mqtt
+    build:
+      context: .
+      dockerfile: ./docker/mosquitto/Dockerfile
     ports:
       - "1883:1883"
+    environment:
+      MQTT_USER: ${MQTT_USER}
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
     volumes:
       - ./docker/mosquitto:/mosquitto/config
       - ./volumes/mosquitto/data:/mosquitto/data
       - ./volumes/mosquitto/log:/mosquitto/log
 
-  scanner_emulator:
-    image: python:3.13-slim
-    container_name: fpv-scanner-emulator
-    command: /run.sh
-    volumes:
-      - ./scanner_emulator:/app
-      - ./docker/scanner_emulator/run.sh:/run.sh
-    depends_on:
-      - mqtt
-
   fastapi:
-    container_name: fpv-fastapi
+    container_name: raven-eye-fastapi
     build:
       context: .
       dockerfile: ./docker/python/Dockerfile
@@ -33,7 +28,7 @@ services:
       - mqtt
 
   frontend:
-    container_name: fpv-frontend
+    container_name: raven-eye-frontend
     command: /run.sh
     build:
       context: .
@@ -43,7 +38,7 @@ services:
       - ./docker/frontend/run.sh:/run.sh
 
   web:
-    container_name: fpv-web
+    container_name: raven-eye-web
     image: nginx:latest
     ports:
       - "80:80"

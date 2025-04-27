@@ -183,6 +183,7 @@ if __name__ == '__main__':
     client.publish(out_topic, json.dumps({
         "scanner_id": scanner_id,
         "action": "ready",
+        "sw_version": "0.1.0",
         "config": config_to_publish,
         "tuner_configs": tuner_configs
     }))
@@ -219,6 +220,7 @@ if __name__ == '__main__':
             client.publish(out_topic, json.dumps({
                 "scanner_id": scanner_id,
                 "action": "ping",
+                "sw_version": "0.1.0",
                 "config": config_to_publish,
                 "tuner_configs": tuner_configs
             }))

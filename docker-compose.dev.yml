@@ -1,0 +1,12 @@
+services:
+
+  scanner_emulator:
+    image: python:3.13-slim
+    container_name: raven-eye-scanner-emulator
+    command: /run.sh
+    volumes:
+      - ./scanner_emulator:/app
+      - ./docker/scanner_emulator/run.sh:/run.sh
+    depends_on:
+      - mqtt
+
