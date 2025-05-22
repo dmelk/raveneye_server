@@ -43,6 +43,10 @@ class ScannerService {
     return this.executeAction(scannerId, tunerId, 'tune', { value: value });
   }
 
+  async setFrequency(scannerId, tunerId, value) {
+    return this.executeAction(scannerId, tunerId, 'set_frequency', { value: value });
+  }
+
   async executeAction(scannerId, tunerId, action, payload) {
     const response = await fetch(`${this.apiUrl}/${scannerId}/${action}/${tunerId}`, {
       method: 'POST',

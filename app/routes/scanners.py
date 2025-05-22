@@ -9,6 +9,9 @@ class ClearSkipModel(BaseModel):
 class TuneModel(BaseModel):
     value: int
 
+class FrequencyModel(BaseModel):
+    value: int
+
 router = APIRouter()
 
 @router.get("/scanners", tags=["Scanners"])
@@ -48,4 +51,9 @@ def clear_skip(scanner_id: str, tuner_id: int, model: ClearSkipModel):
 @router.post("/scanners/{scanner_id}/tune/{tuner_id}", tags=["Scanners"])
 def tune(scanner_id: str, tuner_id: int, model: TuneModel):
     service_container.scanner_controller().tune(scanner_id, tuner_id, model.value)
+    return {"status": "OK"}
+
+@router.post("/scanners/{scanner_id}/set_frequency/{tuner_id}", tags=["Scanners"])
+def set_frequency(scanner_id: str, tuner_id: int, model: FrequencyModel):
+    service_container.scanner_controller().set(scanner_id, tuner_id, model.value)
     return {"status": "OK"}

@@ -30,6 +30,14 @@ class ScannerController:
             "tuner_idx": tuner_idx
         })
 
+    def set(self, scanner_id, tuner_idx, value):
+        self._message_bus.send({
+            "scanner_id": scanner_id,
+            "action": "set",
+            "tuner_idx": tuner_idx,
+            "value": value
+        })
+
     def stop(self, scanner_id, tuner_idx):
         self._message_bus.send({
             "scanner_id": scanner_id,

@@ -19,6 +19,7 @@ class EmulatedTuner:
     min_frequency_idx = 0
     max_frequency_idx = len(frequency_table) - 1
     current_frequency_idx = min_frequency_idx
+    current_frequency = frequency_table[min_frequency_idx]
 
     def __init__(self, rssi_threshold, min_idx, max_idx):
         self.min_frequency_idx = min_idx
@@ -34,23 +35,27 @@ class EmulatedTuner:
         self.current_frequency_idx += 1
         if self.current_frequency_idx > self.max_frequency_idx:
             self.current_frequency_idx = self.min_frequency_idx
+        self.current_frequency = self.frequency_table[self.current_frequency_idx]
         if self.current_frequency_idx in self.skip_table:
             self.next()
-            return
 
     def prev(self):
         self.current_frequency_idx -= 1
         if self.current_frequency_idx < self.min_frequency_idx:
             self.current_frequency_idx = self.max_frequency_idx
+        self.current_frequency = self.frequency_table[self.current_frequency_idx]
         if self.current_frequency_idx in self.skip_table:
             self.prev()
-            return
+
+    def set(self, frequency):
+        self.current_frequency = frequency
+        self.current_frequency_idx = 0
 
     def is_signal_strong(self):
-        return self.frequency_table[self.current_frequency_idx] == 5760
+        return self.current_frequency == 5760
 
     def get_frequency(self):
-        return self.frequency_table[self.current_frequency_idx]
+        return self.current_frequency
 
     def get_frequency_idx(self):
         return self.current_frequency_idx
