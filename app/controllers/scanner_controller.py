@@ -9,62 +9,54 @@ class ScannerController:
     def list(self):
         return self._scanner_config.get_scanners()
 
-    def scan(self, scanner_id, tuner_idx):
+    def scan(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
-            "action": "scan",
-            "tuner_idx": tuner_idx
+            "action": "scan"
         })
 
-    def next(self, scanner_id, tuner_idx):
+    def next(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
-            "action": "next",
-            "tuner_idx": tuner_idx
+            "action": "next"
         })
 
-    def prev(self, scanner_id, tuner_idx):
+    def prev(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
-            "action": "prev",
-            "tuner_idx": tuner_idx
+            "action": "prev"
         })
 
-    def set(self, scanner_id, tuner_idx, value):
+    def set(self, scanner_id, value):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "set",
-            "tuner_idx": tuner_idx,
             "value": value
         })
 
-    def stop(self, scanner_id, tuner_idx):
+    def stop(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
-            "action": "stop",
-            "tuner_idx": tuner_idx
+            "action": "stop"
         })
 
-    def skip(self, scanner_id, tuner_idx):
+    def skip(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
-            "action": "skip",
-            "tuner_idx": tuner_idx
+            "action": "skip"
         })
 
-    def clear_skip(self, scanner_id, tuner_idx, value, all_values):
+    def clear_skip(self, scanner_id, value, all_values):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "clear_skip",
-            "tuner_idx": tuner_idx,
             "value": value,
             "all": all_values
         })
 
-    def tune(self, scanner_id, tuner_idx, value):
+    def tune(self, scanner_id, value):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "tune",
-            "tuner_idx": tuner_idx,
             "value": value
         })

@@ -12,43 +12,43 @@ class ScannerService {
     return await response.json();
   }
 
-  async scan(scannerId, tunerId) {
-    return this.executeAction(scannerId, tunerId, 'scan', {});
+  async scan(scannerId) {
+    return this.executeAction(scannerId, 'scan', {});
   }
 
-  async stop(scannerId, tunerId) {
-    return this.executeAction(scannerId, tunerId, 'stop', {});
+  async stop(scannerId) {
+    return this.executeAction(scannerId, 'stop', {});
   }
 
-  async next(scannerId, tunerId) {
-    return this.executeAction(scannerId, tunerId, 'next', {});
+  async next(scannerId) {
+    return this.executeAction(scannerId, 'next', {});
   }
 
-  async prev(scannerId, tunerId) {
-    return this.executeAction(scannerId, tunerId, 'prev', {});
+  async prev(scannerId) {
+    return this.executeAction(scannerId, 'prev', {});
   }
 
-  async skip(scannerId, tunerId) {
-    return this.executeAction(scannerId, tunerId, 'skip', {});
+  async skip(scannerId) {
+    return this.executeAction(scannerId, 'skip', {});
   }
 
-  async clearSkip(scannerId, tunerId, value, allValues) {
-    return this.executeAction(scannerId, tunerId, 'clear_skip', {
+  async clearSkip(scannerId, value, allValues) {
+    return this.executeAction(scannerId, 'clear_skip', {
       value: value,
       allValues: allValues
     });
   }
 
-  async tune(scannerId, tunerId, value) {
-    return this.executeAction(scannerId, tunerId, 'tune', { value: value });
+  async tune(scannerId, value) {
+    return this.executeAction(scannerId, 'tune', { value: value });
   }
 
-  async setFrequency(scannerId, tunerId, value) {
-    return this.executeAction(scannerId, tunerId, 'set_frequency', { value: value });
+  async setFrequency(scannerId, value) {
+    return this.executeAction(scannerId, 'set_frequency', { value: value });
   }
 
-  async executeAction(scannerId, tunerId, action, payload) {
-    const response = await fetch(`${this.apiUrl}/${scannerId}/${action}/${tunerId}`, {
+  async executeAction(scannerId, action, payload) {
+    const response = await fetch(`${this.apiUrl}/${scannerId}/${action}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ class ScannerService {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      throw new Error(`Failed to execute action ${action} on scanner ${scannerId} with tuner ${tunerId}`);
+      throw new Error(`Failed to execute action ${action} on scanner ${scannerId}`);
     }
     return await response.json();
   }

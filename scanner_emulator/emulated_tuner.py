@@ -1,3 +1,5 @@
+from random import random
+
 class EmulatedTuner:
     frequency_table = [
         4884, 4921, 4958, 4990, 4995, 5020, 5032, 5050,
@@ -20,6 +22,9 @@ class EmulatedTuner:
     max_frequency_idx = len(frequency_table) - 1
     current_frequency_idx = min_frequency_idx
     current_frequency = frequency_table[min_frequency_idx]
+    is_scan = False
+    attempts = 0
+    signal_first_found = False
 
     def __init__(self, rssi_threshold, min_idx, max_idx):
         self.min_frequency_idx = min_idx
@@ -32,6 +37,7 @@ class EmulatedTuner:
         self.current_frequency_idx = self.min_frequency_idx
 
     def next(self):
+        signal_first_found = False
         self.current_frequency_idx += 1
         if self.current_frequency_idx > self.max_frequency_idx:
             self.current_frequency_idx = self.min_frequency_idx
@@ -40,6 +46,7 @@ class EmulatedTuner:
             self.next()
 
     def prev(self):
+        signal_first_found = False
         self.current_frequency_idx -= 1
         if self.current_frequency_idx < self.min_frequency_idx:
             self.current_frequency_idx = self.max_frequency_idx
@@ -48,6 +55,7 @@ class EmulatedTuner:
             self.prev()
 
     def set(self, frequency):
+        signal_first_found = False
         self.current_frequency = frequency
         self.current_frequency_idx = 0
 
@@ -75,10 +83,12 @@ class EmulatedTuner:
         return {
             "frequency": self.get_frequency(),
             "frequency_idx": self.get_frequency_idx(),
+            "rssi": int(random() * 100) + 20,
             "rssi_threshold": self.rssi_threshold,
-            "min_frequency": self.frequency_table[self.min_frequency_idx],
-            "max_frequency": self.frequency_table[self.max_frequency_idx],
-            "skip_table": self.skip_table
+            "min_idx": self.min_frequency_idx,
+            "max_idx": self.max_frequency_idx,
+            "skip_table": self.skip_table,
+            "scanning": self.is_scan
         }
 
     def set_rssi_threshold(self, rssi_threshold):

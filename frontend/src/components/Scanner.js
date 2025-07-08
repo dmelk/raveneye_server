@@ -7,15 +7,18 @@ function Scanner({scannerId, config}) {
       <Grid size={12}>
         <h1>{config.name}</h1>
       </Grid>
-      <Grid size={12}>
+      <Grid size={6}>
         Status: {config.status}
       </Grid>
+      <Grid size={6}>
+        Прошивка: {config.sw_version}
+      </Grid>
       {
-        (config.status === 'online' ? config.tuners.map((tuner, index) => (
-          <Grid size={6} key={index}>
-            <Tuner tunerId={index} config={tuner} scannerId={scannerId}/>
+        (config.status === 'online' ? (
+          <Grid size={12}>
+            <Tuner config={config.tuner} scannerId={scannerId}/>
           </Grid>
-        ))
+        )
           : null)
       }
     </Grid>

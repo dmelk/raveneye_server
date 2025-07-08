@@ -6,24 +6,12 @@
         "user": "guest",
         "password": "guest"
     },
-    "tuners": [
-        {
-            "name": "4.9-6 GHz",
-            "type": "rx5808",
-            "rssi_threshold": 840,
-            "createArgs": {
-                "min": 0,
-                "max": 88
-            }
-        },
-        {
-            "name": "4.9-6 GHz",
-            "type": "rx5808",
-            "rssi_threshold": 840,
-            "createArgs": {
-                "min": 0,
-                "max": 88
-            }
-        }
-    ]
+    "tuner": {
+      "type": "rx5808",
+      "rssi_threshold": 60,
+      "createArgs": {
+          "min": 0,
+          "max": 88
+      }
+    }
 }

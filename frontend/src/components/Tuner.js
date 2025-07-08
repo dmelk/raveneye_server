@@ -4,14 +4,13 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import SearchIcon from '@mui/icons-material/Search';
 import StopIcon from '@mui/icons-material/Stop';
-import Slider from '@mui/material/Slider';
 import SaveIcon from '@mui/icons-material/Save';
 import TextField from '@mui/material/TextField';
 import {useState} from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-function Tuner({scannerId, tunerId, config}) {
+function Tuner({scannerId, config}) {
 
   const [rssiThreshold, setRssiThreshold] = useState(config.rssi_threshold);
 
@@ -20,29 +19,29 @@ function Tuner({scannerId, tunerId, config}) {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleRssiThresholdChange = () => {
-    scannerService.tune(scannerId, tunerId, rssiThreshold);
+    scannerService.tune(scannerId, rssiThreshold);
   }
 
   const applyFrequencyChange = async (frequency) => {
-    await scannerService.stop(scannerId, tunerId);
-    await scannerService.setFrequency(scannerId, tunerId, frequency);
+    await scannerService.stop(scannerId);
+    await scannerService.setFrequency(scannerId, frequency);
     setIsEditing(false);
   }
 
   const handlePrev = () => {
-    scannerService.prev(scannerId, tunerId);
+    scannerService.prev(scannerId);
   }
 
   const handleNext = () => {
-    scannerService.next(scannerId, tunerId);
+    scannerService.next(scannerId);
   }
 
   const handleScan = () => {
-      scannerService.scan(scannerId, tunerId);
+      scannerService.scan(scannerId);
   }
 
   const handleStopScan = () => {
-      scannerService.stop(scannerId, tunerId);
+      scannerService.stop(scannerId);
   }
 
   const handleEdit = () => {
@@ -51,9 +50,6 @@ function Tuner({scannerId, tunerId, config}) {
 
   return (
     <Grid container spacing={2}>
-      <Grid size={12}>
-        <h2>{config.name}</h2>
-      </Grid>
       <Grid size={4}>
         {
           isEditing ?
@@ -121,17 +117,10 @@ function Tuner({scannerId, tunerId, config}) {
         }
       </Grid>
       <Grid size={3}>
-        Чутливість
+        RSSI: {typeof config.rssi === 'undefined' ? 'N/A' : config.rssi}
       </Grid>
-      <Grid size={6}>
-        <Slider
-          value={rssiThreshold}
-          min={500}
-          max={1000}
-          step={1}
-          onChange={(event, newValue) => setRssiThreshold(newValue)}
-          valueLabelDisplay="auto"
-        />
+      <Grid size={3}>
+        Чутливість
       </Grid>
       <Grid size={2}>
         <TextField

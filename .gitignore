@@ -11,3 +11,4 @@ docker-compose.override.yml
 scanner_emulator/scanner_config.json
 .env
 scanner_emulator/__py_cache__
+scanner_emulator/__pycache__

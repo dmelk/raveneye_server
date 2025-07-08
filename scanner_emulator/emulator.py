@@ -1,126 +1,93 @@
 import json
 import time
 import paho.mqtt.client as mqtt
-
 from emulated_tuner import EmulatedTuner
-
-class TunerData:
-    def __init__(self, tuner, attempts, scanning):
-        self.tuner = tuner
-        self.attempts = attempts
-        self.scanning = scanning
 
 max_attempts = 4
 tick_time = 0.05
+tuner = None
 
 ping_time = 1 / tick_time
 
 out_topic = "scanner_out"
 
-def scan(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    if (not tunerData.scanning):
+def scan():
+    if not tuner.is_scan:
         return
-    tuner = tunerData.tuner
-    if tunerData.attempts == 0:
-        tuner.next()
-        publish_frequency(tuner_idx)
     if tuner.is_signal_strong():
-        client.publish(out_topic, json.dumps({
-            "scanner_id": scanner_id,
-            "action": "signal_found",
-            "value": tuner.get_frequency_idx(),
-            "frequency": tuner.get_frequency(),
-            "tuner_idx": tuner_idx,
-            "config": tuner.get_config(),
-            "scanning": False,
-        }))
-        tunerData.scanning = False
-        tunerData.attempts = 0
+        if not tuner.signal_first_found:
+            client.publish(out_topic, json.dumps({
+                "scanner_id": scanner_id,
+                "action": "signal_found",
+                "sw_version": "0.1.0",
+                "tuner": tuner.get_config()
+            }))
+            tuner.attempts = 0
+            tuner.signal_first_found = True
         return
-    tunerData.attempts += 1
-    if tunerData.attempts == max_attempts:
-        tunerData.attempts = 0
+    if tuner.attempts == 0:
+        tuner.next()
+        publish_frequency()
+    tuner.attempts += 1
+    if tuner.attempts == max_attempts:
+        tuner.attempts = 0
 
-def start_scan(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    tunerData.scanning = True
-    tunerData.attempts == 0
-    publish_frequency(tuner_idx)
+def start_scan():
+    tuner.is_scan = True
+    publish_frequency()
 
-def stop(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    tunerData.scanning = False
-    tunerData.attempts == 0
-    publish_frequency(tuner_idx)
+def stop():
+    tuner.is_scan = False
+    publish_frequency()
 
-def next(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    tunerData.scanning = False
-    tunerData.attempts == 0
-    tuner = tunerData.tuner
+def next():
+    tuner.is_scan = False
+    tuner.attempts = 0
     tuner.next()
-    publish_frequency(tuner_idx)
+    publish_frequency()
 
-def prev(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    tunerData.scanning = False
-    tunerData.attempts == 0
-    tuner = tunerData.tuner
+def prev():
+    tuner.is_scan = False
+    tuner.attempts = 0
     tuner.prev()
-    publish_frequency(tuner_idx)
+    publish_frequency()
 
-def set(tuner_idx, frequency):
-    tunerData: TunerData = tuners[tuner_idx]
-    tunerData.scanning = False
-    tunerData.attempts == 0
-    tuner = tunerData.tuner
+def set(frequency):
+    tuner.is_scan = False
+    tuner.attempts = 0
     tuner.set(frequency)
-    publish_frequency(tuner_idx)
+    publish_frequency()
 
-def skip(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    tunerData.attempts == 0
-    tuner = tunerData.tuner
+def skip():
+    tuner.attempts = 0
     tuner.skip_frequency(tuner.get_frequency_idx())
     tuner.next()
-    publish_frequency(tuner_idx)
+    publish_frequency()
 
-def clear_skip(tuner_idx, idx, all_values=False):
-    tunerData: TunerData = tuners[tuner_idx]
-    tuner = tunerData.tuner
+def clear_skip( idx, all_values=False):
     tuner.clear_skip(idx, all_values)
     client.publish(out_topic, json.dumps({
         "scanner_id": scanner_id,
         "action": "clear_skip",
-        "tuner_idx": tuner_idx,
-        "config": tuner.get_config(),
-        "scanning": tunerData.scanning,
+        "sw_version": "0.1.0",
+        "tuner": tuner.get_config(),
     }))
 
-def tune(tuner_idx, rssi_threshold):
-    tunerData: TunerData = tuners[tuner_idx]
-    tuner = tunerData.tuner
+def tune(rssi_threshold):
     tuner.set_rssi_threshold(rssi_threshold)
     client.publish(out_topic, json.dumps({
         "scanner_id": scanner_id,
         "action": "tune",
-        "tuner_idx": tuner_idx,
-        "config": tuner.get_config(),
-        "scanning": tunerData.scanning,
+        "sw_version": "0.1.0",
+        "tuner": tuner.get_config(),
     }))
 
-def publish_frequency(tuner_idx):
-    tunerData: TunerData = tuners[tuner_idx]
-    tuner = tunerData.tuner
+def publish_frequency():
     client.publish(out_topic, json.dumps({
         "scanner_id": scanner_id,
         "action": "frequency_change",
-        "value": tuner.get_frequency_idx(),
-        "frequency": tuner.get_frequency(),
-        "config": tuner.get_config(),
-        "scanning": tunerData.scanning,
-        "tuner_idx": tuner_idx
+        "sw_version": "0.1.0",
+        "tuner": tuner.get_config(),
     }))
 
 def on_message(client, userdata, msg):
@@ -128,39 +95,35 @@ def on_message(client, userdata, msg):
     if (payload["scanner_id"] != scanner_id):
         return
     action = payload["action"]
-    tuner_idx = payload["tuner_idx"]
-    if (tuner_idx >= len(tuners)):
-        return
     if (action == "scan"):
-        start_scan(tuner_idx)
+        start_scan()
         return
     if (action == "stop"):
-        stop(tuner_idx)
+        stop()
         return
     if (action == "next"):
-        next(tuner_idx)
+        next()
         return
     if (action == "prev"):
-        prev(tuner_idx)
+        prev()
         return
     if (action == "skip"):
-        skip(tuner_idx)
+        skip()
         return
     if (action == "set"):
-        set(tuner_idx, payload["value"])
+        set(payload["value"])
         return
     if (action == "tune"):
-        tune(tuner_idx, payload["value"])
+        tune(payload["value"])
         return
     if (action == "clear_skip"):
-        clear_skip(tuner_idx, payload["value"], payload["all_values"] == '1')
+        clear_skip(payload["value"], payload["all_values"] == '1')
         return
-
+    return
 
 def on_connect(client, userdata, flags, reason_code):
     print(f"Connected with result code {reason_code}")
     client.subscribe("scanner_in")
-
 
 if __name__ == '__main__':
     with open("scanner_config.json", "r") as file:
@@ -176,27 +139,14 @@ if __name__ == '__main__':
 
     scanner_id = config["id"]
 
-    tuners = []
-    tuner_configs = []
-    for tuner_config in config["tuners"]:
-        tuner = EmulatedTuner(tuner_config['rssi_threshold'], tuner_config['createArgs']['min'], tuner_config['createArgs']['max'])
-        tuners.append(TunerData(tuner, 0, False))
-        tuner_configs.append({
-            "scanning": False,
-            "tuner": tuner.get_config()
-        })
-
-    config_to_publish = {
-        "id": scanner_id,
-        "tuners": config["tuners"],
-    }
+    tuner_config = config["tuner"]
+    tuner = EmulatedTuner(tuner_config['rssi_threshold'], tuner_config['createArgs']['min'], tuner_config['createArgs']['max'])
 
     client.publish(out_topic, json.dumps({
         "scanner_id": scanner_id,
         "action": "ready",
         "sw_version": "0.1.0",
-        "config": config_to_publish,
-        "tuner_configs": tuner_configs
+        "tuners": [tuner.get_config()]
     }))
 
     ping_attempt = 0
@@ -217,22 +167,14 @@ if __name__ == '__main__':
             # do not scan if not connected
             continue
 
-        for i in range(len(tuners)):
-            scan(i)
+        scan()
         time.sleep(tick_time)
         ping_attempt += 1
         if ping_attempt >= ping_time:
-            tuner_configs = []
-            for tuner in tuners:
-                tuner_configs.append({
-                    "scanning": tuner.scanning,
-                    "tuner": tuner.tuner.get_config()
-                })
             client.publish(out_topic, json.dumps({
                 "scanner_id": scanner_id,
                 "action": "ping",
                 "sw_version": "0.1.0",
-                "config": config_to_publish,
-                "tuner_configs": tuner_configs
+                "tuner": tuner.get_config()
             }))
             ping_attempt = 0
