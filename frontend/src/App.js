@@ -1,9 +1,14 @@
 import './App.css';
 import {useEffect, useState} from 'react';
 import { scannerService } from './services/scannerService';
-import {Grid} from "@mui/material";
-import Scanner from "./components/Scanner";
 import {WebsocketService} from "./services/WebsocketService";
+import {
+  createBrowserRouter,
+  RouterProvider
+} from 'react-router';
+
+import ScannerListPage from './pages/ScannerListPage';
+import ScannerDetailPage from './pages/ScannerDetailPage';
 
 function App() {
   const [scanners, setScanners] = useState({});
@@ -51,23 +56,18 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <Grid container spacing={2}>
-          {
-            Object.keys(scanners).map((scannerId, index) => {
-              return (
-                <Grid size={12} key={index}>
-                  <Scanner scannerId={scannerId} config={scanners[scannerId]}/>
-                </Grid>
-              )
-            })
-          }
-        </Grid>
-      </header>
-    </div>
-  );
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <ScannerListPage scanners={scanners} />
+    },
+    {
+      path: '/scanner/:id',
+      element: <ScannerDetailPage scanners={scanners} />
+    }
+  ]);
+
+  return <RouterProvider router={router} />;
 }
 
 export default App;

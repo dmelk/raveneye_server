@@ -39,6 +39,18 @@ services:
       - mqtt
       - mongodb
 
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: raven-eye-mediamtx
+    ports:
+      - "8554:8554"     # RTSP
+      - "8889:8889"     # WebRTC HTTP API
+      - "8189:8189/udp" # WebRTC media transport (UDP)
+    environment:
+      MTX_WEBRTCADDITIONALHOSTS: ${MTX_WEBRTCADDITIONALHOSTS}
+    volumes:
+      - ./docker/mediamtx/mediamtx.yml:/mediamtx.yml
+
   frontend:
     container_name: raven-eye-frontend
     command: /run.sh
@@ -59,3 +71,4 @@ services:
       - ./frontend/build:/app:ro
     depends_on:
       - fastapi
+      - mediamtx
