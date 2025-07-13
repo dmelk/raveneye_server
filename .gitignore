@@ -12,4 +12,4 @@ scanner_emulator/scanner_config.json
 .env
 scanner_emulator/__py_cache__
 scanner_emulator/__pycache__
-docker/mediamtx/mediamtx.yml.dist
+docker/mediamtx/mediamtx.yml
