@@ -1,12 +1,18 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from dotenv import load_dotenv
 from service_container import service_container
 from routes import scanners
 load_dotenv()
 
-service_container.setup_services()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup tasks
+    service_container.setup_services()
+    yield
+    # Shutdown tasks
 
-app = FastAPI(root_path="/api")
+app = FastAPI(root_path="/api", lifespan=lifespan)
 
 app.include_router(scanners.router)
 

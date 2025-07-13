@@ -6,3 +6,5 @@ loguru
 paho-mqtt
 websockets
 redis[hiredis]
+beanie
+motor
