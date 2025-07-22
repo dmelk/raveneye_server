@@ -1,6 +1,9 @@
+import asyncio
 from controllers.scanner_controller import ScannerController
+from services.logger import Logger
 from services.message_bus import MessageBus
-from services.scanner_config import ScannerConfig
+from services.modules_manager import ModulesManager
+from services.mongo_db import MongoDb
 from services.websocket_manager import WebsocketManager
 import os
 
@@ -14,8 +17,17 @@ class ServiceContainer:
     def get_service(self, name):
         return self.services[name]
 
-    def add_message_bus(self, broker, port, username, password, websocket_manager: WebsocketManager):
-        message_bus = MessageBus(broker, port, username, password, websocket_manager)
+    def add_message_bus(self, broker, port, username, password):
+        message_bus = MessageBus(
+            broker,
+            port,
+            username,
+            password,
+            self.websocket_manager(),
+            self.modules_manager(),
+            self.logger(),
+            asyncio.get_running_loop()
+        )
         message_bus.start()
         self.add_service('message_bus', message_bus)
 
@@ -30,33 +42,58 @@ class ServiceContainer:
         return self.get_service('websocket_manager')
 
     def add_scanner_controller(self):
-        scanner_controller = ScannerController(self.message_bus(), self.scanner_config())
+        scanner_controller = ScannerController(self.message_bus(), self.modules_manager())
         self.add_service('scanner_controller', scanner_controller)
 
     def scanner_controller(self) -> ScannerController:
         return self.get_service('scanner_controller')
 
-    def add_scanner_config(self, config_path):
-        scanner_config = ScannerConfig(config_path)
-        self.add_service('scanner_config', scanner_config)
+    async def add_mongo_db(self, uri: str, db_name: str):
+        mongo_db = MongoDb(uri, db_name)
+        await mongo_db.start()
+        self.add_service('mongo_db', mongo_db)
 
-    def scanner_config(self) -> ScannerConfig:
-        return self.get_service('scanner_config')
+    def mongo_db(self) -> MongoDb:
+        return self.get_service('mongo_db')
 
-    def setup_services(self):
-        # Load scanner config into memory
-        self.add_scanner_config(os.getenv("SCANNER_CONFIG_PATH"))
+    def add_modules_manager(self):
+        modules_manager = ModulesManager()
+        self.add_service('modules_manager', modules_manager)
+
+    def modules_manager(self) -> ModulesManager:
+        return self.get_service('modules_manager')
+
+    def add_logger(self):
+        logger = Logger()
+        self.add_service('logger', logger)
+
+    def logger(self) -> Logger:
+        return self.get_service('logger')
+
+    async def setup_services(self):
+        # init mongo db
+        await self.add_mongo_db(os.getenv("MONGODB_URI"), os.getenv("MONGODB_NAME"))
+
+        # Modules Manager Setup
+        self.add_modules_manager()
+
+        # Logger Setup
+        self.add_logger()
 
         # Websocket Manager Setup
         self.add_websocket_manager()
 
         # MQTT Client Setup
         self.add_message_bus(os.getenv("MQTT_BROKER"), int(os.getenv("MQTT_PORT")), os.getenv("MQTT_USER"),
-                                          os.getenv("MQTT_PASSWORD"), self.websocket_manager())
+                                          os.getenv("MQTT_PASSWORD"))
         self.message_bus().start()
 
         # Scanner controller setup
         self.add_scanner_controller()
+
+    async def close_services(self):
+        # Close MongoDB connection
+        await self.mongo_db().close()
 
 service_container = ServiceContainer()
 

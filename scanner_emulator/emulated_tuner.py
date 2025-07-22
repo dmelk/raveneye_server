@@ -25,6 +25,7 @@ class EmulatedTuner:
     is_scan = False
     attempts = 0
     signal_first_found = False
+    signal_strong_count = 0
 
     def __init__(self, rssi_threshold, min_idx, max_idx):
         self.min_frequency_idx = min_idx
@@ -37,7 +38,8 @@ class EmulatedTuner:
         self.current_frequency_idx = self.min_frequency_idx
 
     def next(self):
-        signal_first_found = False
+        self.signal_first_found = False
+        self.signal_strong_count = 0
         self.current_frequency_idx += 1
         if self.current_frequency_idx > self.max_frequency_idx:
             self.current_frequency_idx = self.min_frequency_idx
@@ -46,7 +48,8 @@ class EmulatedTuner:
             self.next()
 
     def prev(self):
-        signal_first_found = False
+        self.signal_first_found = False
+        self.signal_strong_count = 0
         self.current_frequency_idx -= 1
         if self.current_frequency_idx < self.min_frequency_idx:
             self.current_frequency_idx = self.max_frequency_idx
@@ -55,12 +58,24 @@ class EmulatedTuner:
             self.prev()
 
     def set(self, frequency):
-        signal_first_found = False
+        self.signal_first_found = False
+        self.signal_strong_count = 0
         self.current_frequency = frequency
         self.current_frequency_idx = 0
 
     def is_signal_strong(self):
-        return self.current_frequency == 5760
+        # if random is grater than 50 then signal is strong
+        # signal will be strong for 20 attempts
+        # after that it will re-check random value
+        if self.signal_strong_count > 0:
+            self.signal_strong_count += 1
+            if self.signal_strong_count <= 20:
+                return True
+            self.signal_strong_count = 0
+        if int(random() * 100) > 50:
+            self.signal_strong_count = 1
+            return True
+        return False
 
     def get_frequency(self):
         return self.current_frequency

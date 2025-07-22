@@ -12,11 +12,19 @@ class TuneModel(BaseModel):
 class FrequencyModel(BaseModel):
     value: int
 
+class RenameModel(BaseModel):
+    name: str
+
 router = APIRouter()
 
 @router.get("/scanners", tags=["Scanners"])
-def list():
-    return service_container.scanner_controller().list()
+async def list():
+    return await service_container.scanner_controller().list()
+
+@router.post("/scanners/{scanner_id}/rename", tags=["Scanners"])
+async def scan(scanner_id: str, model: RenameModel):
+    await service_container.scanner_controller().rename(scanner_id, model.name)
+    return {"status": "OK"}
 
 @router.post("/scanners/{scanner_id}/scan", tags=["Scanners"])
 def scan(scanner_id: str):

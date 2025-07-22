@@ -25,6 +25,13 @@ def scan():
             tuner.attempts = 0
             tuner.signal_first_found = True
         return
+    elif tuner.signal_first_found:
+        client.publish(out_topic, json.dumps({
+            "scanner_id": scanner_id,
+            "action": "signal_lost",
+            "sw_version": "0.1.0",
+            "tuner": tuner.get_config(),
+        }))
     if tuner.attempts == 0:
         tuner.next()
         publish_frequency()
@@ -41,22 +48,35 @@ def stop():
     publish_frequency()
 
 def next():
-    tuner.is_scan = False
     tuner.attempts = 0
     tuner.next()
-    publish_frequency()
+    client.publish(out_topic, json.dumps({
+        "scanner_id": scanner_id,
+        "action": "next",
+        "sw_version": "0.1.0",
+        "tuner": tuner.get_config(),
+    }))
 
 def prev():
-    tuner.is_scan = False
     tuner.attempts = 0
     tuner.prev()
-    publish_frequency()
+    client.publish(out_topic, json.dumps({
+        "scanner_id": scanner_id,
+        "action": "prev",
+        "sw_version": "0.1.0",
+        "tuner": tuner.get_config(),
+    }))
 
 def set(frequency):
     tuner.is_scan = False
     tuner.attempts = 0
     tuner.set(frequency)
-    publish_frequency()
+    client.publish(out_topic, json.dumps({
+        "scanner_id": scanner_id,
+        "action": "manual_change",
+        "sw_version": "0.1.0",
+        "tuner": tuner.get_config(),
+    }))
 
 def skip():
     tuner.attempts = 0
@@ -146,7 +166,7 @@ if __name__ == '__main__':
         "scanner_id": scanner_id,
         "action": "ready",
         "sw_version": "0.1.0",
-        "tuners": [tuner.get_config()]
+        "tuner": tuner.get_config()
     }))
 
     ping_attempt = 0

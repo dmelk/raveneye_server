@@ -19,7 +19,7 @@ export default function ScannerContent({
                                          scannerId, config, full = false,
                                        }) {
 
-  const [rssiThreshold, setRssiThreshold] = useState(config.tuner.rssi_threshold);
+  const [rssiThreshold, setRssiThreshold] = useState(config.tuner ? config.tuner.rssi_threshold : 0);
 
   const [thresholdDialogOpen, setThresholdDialogOpen] = useState(false);
 
@@ -76,7 +76,7 @@ export default function ScannerContent({
         <Typography variant={full ? 'subtitle1' : 'body2'}>
           <Box component="span" display="inline-flex" alignItems="center" gap={0.5}>
             <SignalCellularAltIcon fontSize="small"/>
-            {config.tuner.rssi}
+            {config.tuner ? config.tuner.rssi : 'N/A'}
           </Box>
         </Typography>
         <Box>

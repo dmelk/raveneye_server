@@ -3,14 +3,17 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from dotenv import load_dotenv
 from service_container import service_container
 from routes import scanners
+
 load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup tasks
-    service_container.setup_services()
+    await service_container.setup_services()
+
     yield
     # Shutdown tasks
+    await service_container.close_services()
 
 app = FastAPI(root_path="/api", lifespan=lifespan)
 
