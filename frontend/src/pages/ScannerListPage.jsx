@@ -1,8 +1,16 @@
-import { Grid, Typography, Box } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import ScannerView from '../components/ScannerView';
+import {usePageTitle} from "../context/TitleContext";
+import {useEffect} from "react";
 
 export default function ScannerListPage({ scanners }) {
   const scannerEntries = Object.entries(scanners); // [ [id, config], ... ]
+
+  const { setTitle } = usePageTitle();
+
+  useEffect(() => {
+    setTitle('Сканери');
+  }, []);
 
   if (scannerEntries.length === 0) {
     return <Typography p={3}>Немає сканерів</Typography>;
@@ -10,7 +18,6 @@ export default function ScannerListPage({ scanners }) {
 
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>Сканери</Typography>
       <Box
         sx={{
           display: 'grid',

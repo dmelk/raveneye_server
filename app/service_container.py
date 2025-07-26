@@ -1,5 +1,6 @@
 import asyncio
 from controllers.scanner_controller import ScannerController
+from controllers.log_controller import LogController
 from services.logger import Logger
 from services.message_bus import MessageBus
 from services.modules_manager import ModulesManager
@@ -41,12 +42,17 @@ class ServiceContainer:
     def websocket_manager(self) -> WebsocketManager:
         return self.get_service('websocket_manager')
 
-    def add_scanner_controller(self):
+    def add_controllers(self):
         scanner_controller = ScannerController(self.message_bus(), self.modules_manager())
         self.add_service('scanner_controller', scanner_controller)
+        log_controller = LogController()
+        self.add_service('log_controller', log_controller)
 
     def scanner_controller(self) -> ScannerController:
         return self.get_service('scanner_controller')
+
+    def log_controller(self) -> LogController:
+        return self.get_service('log_controller')
 
     async def add_mongo_db(self, uri: str, db_name: str):
         mongo_db = MongoDb(uri, db_name)
@@ -88,8 +94,8 @@ class ServiceContainer:
                                           os.getenv("MQTT_PASSWORD"))
         self.message_bus().start()
 
-        # Scanner controller setup
-        self.add_scanner_controller()
+        # Controllers setup
+        self.add_controllers()
 
     async def close_services(self):
         # Close MongoDB connection

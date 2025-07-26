@@ -12,9 +12,9 @@ export default function ScannerView({ scannerId, config, full = false, onBack })
     <Box
       sx={{
         p: full ? 0 : 2,
-        width: full ? '100vw' : '95%',
-        height: full ? '100vh' : 'auto',
-        minHeight: full ? '100vh' : 450,
+        width: full ? '90w' : '95%',
+        height: full ? '90vh' : 'auto',
+        minHeight: full ? '90vh' : 450,
         borderRadius: full ? 0 : 2,
         boxShadow: full ? 0 : 3,
         backgroundColor: '#2e323d',
@@ -45,7 +45,13 @@ export default function ScannerView({ scannerId, config, full = false, onBack })
           label={config.status}
           color={config.status === 'online' ? 'success' : 'error'}
           size={full ? 'medium' : 'small'}
-          icon={<CircleIcon sx={{ fontSize: 10 }} />}
+          icon={<CircleIcon sx={{ fontSize: 10, color: '#fff' }} />}
+          sx={{
+            color: '#fff', // text color
+            '& .MuiChip-icon': {
+              color: '#fff', // icon color
+            }
+          }}
         />
       </Box>
 

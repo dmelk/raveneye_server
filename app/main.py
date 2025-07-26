@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from dotenv import load_dotenv
 from service_container import service_container
-from routes import scanners
+from routes import scanners, logs
 
 load_dotenv()
 
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(root_path="/api", lifespan=lifespan)
 
 app.include_router(scanners.router)
+app.include_router(logs.router)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

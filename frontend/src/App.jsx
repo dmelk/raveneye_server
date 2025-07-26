@@ -9,6 +9,9 @@ import {
 
 import ScannerListPage from './pages/ScannerListPage';
 import ScannerDetailPage from './pages/ScannerDetailPage';
+import MainLayout from "./components/MainLayout";
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import LogsPage from "./pages/LogsPage";
 
 function App() {
   const [scanners, setScanners] = useState({});
@@ -59,15 +62,60 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <ScannerListPage scanners={scanners} />
+      element: <MainLayout/>,
+      children: [
+        {
+          index: true,
+          element: <ScannerListPage scanners={scanners} />
+        },
+        {
+          path: '/scanner/:id',
+          element: <ScannerDetailPage scanners={scanners} />
+        },
+        {
+          path: '/logs',
+          element: <LogsPage />
+        },
+      ]
     },
-    {
-      path: '/scanner/:id',
-      element: <ScannerDetailPage scanners={scanners} />
-    }
   ]);
 
-  return <RouterProvider router={router} />;
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
+      background: {
+        default: '#121212',
+        paper: '#1e1e1e',
+      },
+      text: {
+        primary: '#ffffff',
+        secondary: '#aaaaaa',
+      }
+    },
+    components: {
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: '#ffffff',
+            textDecoration: 'none',
+            '&:hover': {
+              color: '#90caf9',
+            },
+            '&:visited': {
+              color: '#ffffff',
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  );
 }
 
 export default App;

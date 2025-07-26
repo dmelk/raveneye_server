@@ -15,53 +15,53 @@ class FrequencyModel(BaseModel):
 class RenameModel(BaseModel):
     name: str
 
-router = APIRouter()
+router = APIRouter(prefix="/scanners", tags=["Scanners"])
 
-@router.get("/scanners", tags=["Scanners"])
+@router.get("/")
 async def list():
     return await service_container.scanner_controller().list()
 
-@router.post("/scanners/{scanner_id}/rename", tags=["Scanners"])
+@router.post("/{scanner_id}/rename")
 async def scan(scanner_id: str, model: RenameModel):
     await service_container.scanner_controller().rename(scanner_id, model.name)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/scan", tags=["Scanners"])
+@router.post("/{scanner_id}/scan")
 def scan(scanner_id: str):
     service_container.scanner_controller().scan(scanner_id)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/next", tags=["Scanners"])
+@router.post("/{scanner_id}/next")
 def next(scanner_id: str):
     service_container.scanner_controller().next(scanner_id)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/prev", tags=["Scanners"])
+@router.post("/{scanner_id}/prev")
 def prev(scanner_id: str):
     service_container.scanner_controller().prev(scanner_id)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/stop", tags=["Scanners"])
+@router.post("/{scanner_id}/stop")
 def stop(scanner_id: str):
     service_container.scanner_controller().stop(scanner_id)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/skip", tags=["Scanners"])
+@router.post("/{scanner_id}/skip")
 def skip(scanner_id: str):
     service_container.scanner_controller().skip(scanner_id)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/clear_skip", tags=["Scanners"])
+@router.post("/{scanner_id}/clear_skip")
 def clear_skip(scanner_id: str, model: ClearSkipModel):
     service_container.scanner_controller().clear_skip(scanner_id, model.value, model.all_values)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/tune", tags=["Scanners"])
+@router.post("/{scanner_id}/tune")
 def tune(scanner_id: str, model: TuneModel):
     service_container.scanner_controller().tune(scanner_id, model.value)
     return {"status": "OK"}
 
-@router.post("/scanners/{scanner_id}/set_frequency", tags=["Scanners"])
+@router.post("/{scanner_id}/set_frequency")
 def set_frequency(scanner_id: str, model: FrequencyModel):
     service_container.scanner_controller().set(scanner_id, model.value)
     return {"status": "OK"}

@@ -1,7 +1,7 @@
 class ScannerService {
 
   constructor() {
-    this.apiUrl = '/api/scanners';
+    this.apiUrl = '/api/scanners/';
   }
 
   async listScanners() {
