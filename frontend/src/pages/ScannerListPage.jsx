@@ -1,10 +1,16 @@
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, Switch, FormControlLabel } from '@mui/material';
 import ScannerView from '../components/ScannerView';
 import {usePageTitle} from "../context/TitleContext";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
+import {useSearchParams} from "react-router";
 
 export default function ScannerListPage({ scanners }) {
   const scannerEntries = Object.entries(scanners); // [ [id, config], ... ]
+
+  const [ searchParams, setSearchParams ] = useSearchParams();
+
+  const initialShowVideo = searchParams.get('showVideo') !== 'false'; // default to true
+  const [ showVideo, setShowVideo ] = useState(initialShowVideo);
 
   const { setTitle } = usePageTitle();
 
@@ -12,12 +18,28 @@ export default function ScannerListPage({ scanners }) {
     setTitle('Сканери');
   }, []);
 
+  useEffect(() => {
+    searchParams.set('showVideo', showVideo.toString());
+    setSearchParams(searchParams, { replace: true });
+  }, [showVideo]);
+
   if (scannerEntries.length === 0) {
     return <Typography p={3}>Немає сканерів</Typography>;
   }
 
   return (
     <Box p={3}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={showVideo}
+            onChange={(e) => setShowVideo(e.target.checked)}
+          />
+        }
+        label="Показати відео"
+        sx={{ mb: 2 }}
+      />
+
       <Box
         sx={{
           display: 'grid',
@@ -31,6 +53,7 @@ export default function ScannerListPage({ scanners }) {
               scannerId={id}
               config={config}
               full={false}
+              showVideo={showVideo}
             />
           </Box>
         ))}

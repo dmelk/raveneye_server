@@ -7,14 +7,14 @@ import CircleIcon from '@mui/icons-material/Circle';
 import ScannerContent from "./ScannerContent";
 import { Link } from 'react-router';
 
-export default function ScannerView({ scannerId, config, full = false, onBack }) {
+export default function ScannerView({ scannerId, config, full = false, showVideo = true }) {
   return (
     <Box
       sx={{
         p: full ? 0 : 2,
         width: full ? '90w' : '95%',
         height: full ? '90vh' : 'auto',
-        minHeight: full ? '90vh' : 450,
+        minHeight: full ? '90vh' : ( showVideo ? 450 : 250 ),
         borderRadius: full ? 0 : 2,
         boxShadow: full ? 0 : 3,
         backgroundColor: '#2e323d',
@@ -60,6 +60,7 @@ export default function ScannerView({ scannerId, config, full = false, onBack })
           scannerId={scannerId}
           config={config}
           full={full}
+          showVideo={showVideo}
         />
       )}
 

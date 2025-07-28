@@ -92,7 +92,6 @@ class ServiceContainer:
         # MQTT Client Setup
         self.add_message_bus(os.getenv("MQTT_BROKER"), int(os.getenv("MQTT_PORT")), os.getenv("MQTT_USER"),
                                           os.getenv("MQTT_PASSWORD"))
-        self.message_bus().start()
 
         # Controllers setup
         self.add_controllers()

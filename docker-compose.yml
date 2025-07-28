@@ -14,6 +14,11 @@ services:
       - ./docker/mosquitto:/mosquitto/config
       - ./volumes/mosquitto/data:/mosquitto/data
       - ./volumes/mosquitto/log:/mosquitto/log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
 
   mongodb:
     container_name: raven-eye-mongodb
@@ -25,6 +30,11 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
 
   fastapi:
     container_name: raven-eye-fastapi
@@ -38,6 +48,11 @@ services:
     depends_on:
       - mqtt
       - mongodb
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
 
   mediamtx:
     image: bluenviron/mediamtx:latest
@@ -50,6 +65,11 @@ services:
       MTX_WEBRTCADDITIONALHOSTS: ${MTX_WEBRTCADDITIONALHOSTS}
     volumes:
       - ./docker/mediamtx/mediamtx.yml:/mediamtx.yml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
 
   frontend:
     container_name: raven-eye-frontend
@@ -60,6 +80,11 @@ services:
     volumes:
       - ./frontend:/app
       - ./docker/frontend/run.sh:/run.sh
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
 
   web:
     container_name: raven-eye-web
@@ -72,3 +97,8 @@ services:
     depends_on:
       - fastapi
       - mediamtx
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"

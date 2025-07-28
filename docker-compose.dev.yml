@@ -9,4 +9,9 @@ services:
       - ./docker/scanner_emulator/run.sh:/run.sh
     depends_on:
       - mqtt
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "1"
 
