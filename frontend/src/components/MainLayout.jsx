@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import {TitleContext} from "../context/TitleContext";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import {environment} from "../environments/environment";
 
 export default function MainLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -54,36 +55,44 @@ export default function MainLayout() {
           onClose={() => setDrawerOpen(false)}
         >
           <List>
-            <ListItem
-              button
-              component={Link}
-              to="/" onClick={() => setDrawerOpen(false)}
-              sx={{
-                color: '#fff',
-                '&:visited': { color: '#fff' },
-                textDecoration: 'none',
-              }}
-            >
-              <ListItemText 
-                primary="Сканери"
-                primaryTypographyProps={{ sx: { color: '#fff' } }}
-              />
-            </ListItem>
-            <ListItem
-              button
-              component={Link}
-              to="/logs" onClick={() => setDrawerOpen(false)}
-              sx={{
-                color: '#fff',
-                '&:visited': { color: '#fff' },
-                textDecoration: 'none',
-              }}
-            >
-              <ListItemText
-                primary="Логи"
-                primaryTypographyProps={{ sx: { color: '#fff' } }}
-              />
-            </ListItem>
+            {
+              environment.features.scanner ?
+                (<ListItem
+                  button
+                  component={Link}
+                  to="/" onClick={() => setDrawerOpen(false)}
+                  sx={{
+                    color: '#fff',
+                    '&:visited': { color: '#fff' },
+                    textDecoration: 'none',
+                  }}
+                >
+                  <ListItemText
+                    primary="Сканери"
+                    primaryTypographyProps={{ sx: { color: '#fff' } }}
+                  />
+                </ListItem>)
+                : null
+            }
+            {
+              environment.features.logs ?
+                (<ListItem
+                  button
+                  component={Link}
+                  to="/logs" onClick={() => setDrawerOpen(false)}
+                  sx={{
+                    color: '#fff',
+                    '&:visited': { color: '#fff' },
+                    textDecoration: 'none',
+                  }}
+                >
+                  <ListItemText
+                    primary="Логи"
+                    primaryTypographyProps={{ sx: { color: '#fff' } }}
+                  />
+                </ListItem>)
+                : null
+            }
           </List>
         </Drawer>
 

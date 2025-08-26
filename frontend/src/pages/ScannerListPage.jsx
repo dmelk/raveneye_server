@@ -3,6 +3,7 @@ import ScannerView from '../components/ScannerView';
 import {usePageTitle} from "../context/TitleContext";
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router";
+import {websocketService} from "../services/WebsocketService";
 
 export default function ScannerListPage({ scanners }) {
   const scannerEntries = Object.entries(scanners); // [ [id, config], ... ]
@@ -16,6 +17,11 @@ export default function ScannerListPage({ scanners }) {
 
   useEffect(() => {
     setTitle('Сканери');
+    websocketService.subscribe('scanner');
+
+    return () => {
+      websocketService.unsubscribe('scanner');
+    }
   }, []);
 
   useEffect(() => {

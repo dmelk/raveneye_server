@@ -1,6 +1,7 @@
-export class WebsocketService {
+class WebsocketService {
   constructor(messageHandler) {
     this.socket = new WebSocket('/api/ws');
+    this.messageHandlers = {};
     const self = this;
     this.socket.onopen = function (event) {
       self.openHandler();
@@ -9,8 +10,18 @@ export class WebsocketService {
       self.closeHandler();
     };
     this.socket.onmessage = function (event) {
-      messageHandler(event);
+      for (const id in self.messageHandlers) {
+        self.messageHandlers[id](event);
+      }
     };
+  }
+
+  addMessageHandler(id, messageHandler) {
+    this.messageHandlers[id] = messageHandler;
+  }
+
+  removeMessageHandler(id) {
+    delete this.messageHandlers[id];
   }
 
   close() {
@@ -29,6 +40,16 @@ export class WebsocketService {
   }
 
   ping() {
-    this.socket.send(JSON.stringify({ type: 'ping' }));
+    this.socket.send(JSON.stringify({ action: 'ping' }));
+  }
+
+  subscribe(topic) {
+    this.socket.send(JSON.stringify({ action: 'subscribe', topic: topic }));
+  }
+
+  unsubscribe(topic) {
+    this.socket.send(JSON.stringify({ action: 'unsubscribe', topic: topic }));
   }
 }
+
+export const websocketService = new WebsocketService();

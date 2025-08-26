@@ -44,5 +44,5 @@ class MessageBus:
 
     async def process_message(self, message):
         await self._modules_manager.setup_scanner(message)
-        await self._websocket_manager.send_message(message)
+        await self._websocket_manager.send_message(message, 'scanner')
         await self._logger.scanner_log(message)

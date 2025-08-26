@@ -1,7 +1,7 @@
 import './App.css';
 import {useEffect, useState} from 'react';
 import { scannerService } from './services/scannerService';
-import {WebsocketService} from "./services/WebsocketService";
+import { websocketService } from "./services/WebsocketService";
 import {
   createBrowserRouter,
   RouterProvider
@@ -12,6 +12,7 @@ import ScannerDetailPage from './pages/ScannerDetailPage';
 import MainLayout from "./components/MainLayout";
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import LogsPage from "./pages/LogsPage";
+import {environment} from "./environments/environment";
 
 function App() {
   const [scanners, setScanners] = useState({});
@@ -33,9 +34,7 @@ function App() {
     const scanners = await scannerService.listScanners();
     setScanners(scanners);
 
-    const websocketService = new WebsocketService(
-      (event) => websocketHandler(event)
-    );
+    websocketService.addMessageHandler('app', websocketHandler);
 
     return () => {
       websocketService.close();
@@ -59,24 +58,38 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  const routes = [];
+  let hasIndex = false;
+  if (environment.features.scanner) {
+    hasIndex = true;
+    routes.push(
+      {
+        index: true,
+        element: <ScannerListPage scanners={scanners} />
+      }
+    );
+    routes.push(
+      {
+        path: '/scanner/:id',
+        element: <ScannerDetailPage scanners={scanners} />
+      }
+    )
+  }
+
+  if (environment.features.logs) {
+    routes.push(
+      {
+        path: '/logs',
+        element: <LogsPage />
+      }
+    );
+  }
+
   const router = createBrowserRouter([
     {
       path: '/',
       element: <MainLayout/>,
-      children: [
-        {
-          index: true,
-          element: <ScannerListPage scanners={scanners} />
-        },
-        {
-          path: '/scanner/:id',
-          element: <ScannerDetailPage scanners={scanners} />
-        },
-        {
-          path: '/logs',
-          element: <LogsPage />
-        },
-      ]
+      children: routes
     },
   ]);
 

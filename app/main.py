@@ -1,3 +1,4 @@
+import json
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from dotenv import load_dotenv
@@ -26,6 +27,13 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket_manager.connect(websocket)
     try:
         while True:
-            await websocket.receive_text()
+            json_text = await websocket.receive_text()
+            data = json.loads(json_text)
+            if data.get("action") == "subscribe" and "topic" in data:
+                topic = data["topic"]
+                websocket_manager.subscribe(websocket, topic)
+            elif data.get("action") == "unsubscribe" and "topic" in data:
+                topic = data["topic"]
+                websocket_manager.unsubscribe(websocket, topic)
     except WebSocketDisconnect:
         websocket_manager.disconnect(websocket)
