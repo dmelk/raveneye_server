@@ -2,6 +2,8 @@ class WebsocketService {
   constructor(messageHandler) {
     this.socket = new WebSocket('/api/ws');
     this.messageHandlers = {};
+    this.ready = false;
+    this.subscribeIntervals = {};
     const self = this;
     this.socket.onopen = function (event) {
       self.openHandler();
@@ -29,6 +31,7 @@ class WebsocketService {
   }
 
   openHandler() {
+    this.ready = true;
     this.pingInterval = setInterval(() => {
       this.ping();
     }, 1000); // 1 second
@@ -44,10 +47,28 @@ class WebsocketService {
   }
 
   subscribe(topic) {
+    if (!this.ready) {
+      const self = this;
+      this.subscribeIntervals[topic] = setInterval(() => {
+        if (self.ready) {
+          clearInterval(self.subscribeIntervals[topic]);
+          delete self.subscribeIntervals[topic];
+          self.socket.send(JSON.stringify({ action: 'subscribe', topic: topic }));
+        }
+      }, 100);
+      return;
+    }
     this.socket.send(JSON.stringify({ action: 'subscribe', topic: topic }));
   }
 
   unsubscribe(topic) {
+    if (this.subscribeIntervals[topic]) {
+      clearInterval(this.subscribeIntervals[topic]);
+      delete this.subscribeIntervals[topic];
+    }
+    if (!this.ready) {
+      return;
+    }
     this.socket.send(JSON.stringify({ action: 'unsubscribe', topic: topic }));
   }
 }

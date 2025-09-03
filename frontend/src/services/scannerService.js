@@ -2,6 +2,7 @@ class ScannerService {
 
   constructor() {
     this.apiUrl = '/api/scanners/';
+    this.pingLostInterval = null;
   }
 
   async listScanners() {
@@ -60,6 +61,47 @@ class ScannerService {
     }
     return await response.json();
   }
+
+  initPingLostInterval(handler) {
+    this.pingLostInterval = setInterval(() => handler(), 1000);
+  }
+
+  clearPingLostInterval() {
+    if (this.pingLostInterval) {
+      clearInterval(this.pingLostInterval);
+      this.pingLostInterval = null;
+    }
+  }
+
+  pingLostIntervalHandler(prevScanners) {
+    const updatedScanners = { ...prevScanners };
+    for (const scannerId in updatedScanners) {
+      updatedScanners[scannerId].ping_lost++;
+      if (updatedScanners[scannerId].ping_lost > 5) {
+        updatedScanners[scannerId].status = 'offline';
+      }
+    }
+    return updatedScanners;
+  }
+
+  addWebsocketHandler(event, handler) {
+    const data = JSON.parse(event.data);
+    handler(data);
+  }
+
+  websocketDatatHandler(prevScanners, data) {
+    if (!data.scanner_id || !prevScanners[data.scanner_id]) {
+      return prevScanners;
+    }
+    const updatedScanners = { ...prevScanners };
+    updatedScanners[data.scanner_id].ping_lost = 0;
+
+    updatedScanners[data.scanner_id].status = 'online';
+    updatedScanners[data.scanner_id].sw_version = data.sw_version;
+    updatedScanners[data.scanner_id].tuner = data.tuner;
+    return updatedScanners;
+  }
+
 }
 
 export const scannerService = new ScannerService();

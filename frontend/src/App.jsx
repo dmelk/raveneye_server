@@ -1,6 +1,5 @@
 import './App.css';
-import {useEffect, useState} from 'react';
-import { scannerService } from './services/scannerService';
+import {useEffect} from 'react';
 import { websocketService } from "./services/WebsocketService";
 import {
   createBrowserRouter,
@@ -15,48 +14,11 @@ import LogsPage from "./pages/LogsPage";
 import {environment} from "./environments/environment";
 
 function App() {
-  const [scanners, setScanners] = useState({});
-
-  const websocketHandler = (event) => {
-    const data = JSON.parse(event.data);
-    setScanners(prevScanners => {
-      const updatedScanners = { ...prevScanners };
-      updatedScanners[data.scanner_id].ping_lost = 0;
-
-      updatedScanners[data.scanner_id].status = 'online';
-      updatedScanners[data.scanner_id].sw_version = data.sw_version;
-      updatedScanners[data.scanner_id].tuner = data.tuner;
-      return updatedScanners;
-    })
-  }
-
-  useEffect(async () => {
-    const scanners = await scannerService.listScanners();
-    setScanners(scanners);
-
-    websocketService.addMessageHandler('app', websocketHandler);
-
+  useEffect(() => {
     return () => {
       websocketService.close();
     }
   }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setScanners(prevScanners => {
-        const updatedScanners = { ...prevScanners };
-        for (const scannerId in updatedScanners) {
-          updatedScanners[scannerId].ping_lost++;
-          if (updatedScanners[scannerId].ping_lost > 5) {
-            updatedScanners[scannerId].status = 'offline';
-          }
-        }
-        return updatedScanners;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const routes = [];
   let hasIndex = false;
@@ -65,13 +27,13 @@ function App() {
     routes.push(
       {
         index: true,
-        element: <ScannerListPage scanners={scanners} />
+        element: <ScannerListPage />
       }
     );
     routes.push(
       {
         path: '/scanner/:id',
-        element: <ScannerDetailPage scanners={scanners} />
+        element: <ScannerDetailPage />
       }
     )
   }
