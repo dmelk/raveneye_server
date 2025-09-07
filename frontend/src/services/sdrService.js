@@ -21,10 +21,15 @@ class SdrService {
         lna: data[sdrId].sdr.lna,
         vga: data[sdrId].sdr.vga,
         amp: data[sdrId].sdr.amp,
-        intervals: data[sdrId].sdr.intervals,
+        intervals: [],
         running: data[sdrId].sdr.running,
         sdr_type: data[sdrId].sdr.sdr_type,
         ping_lost: 0
+      };
+      for (const interval of data[sdrId].sdr.intervals) {
+        sdrs[sdrId].intervals.push(
+          [interval[0] / 1e6, interval[1] / 1e6]
+        );
       }
     }
     this.sdrPingLosts = {};
@@ -41,16 +46,16 @@ class SdrService {
 
   async addInterval(sdrId, start, end) {
     return this.executeAction(sdrId, 'add_interval', {
-      start: start,
-      end: end
+      start: start * 1e6,
+      end: end* 1e6
     });
   }
 
   async changeInterval(sdrId, intervalId, start, end) {
     return this.executeAction(sdrId, 'change_interval', {
       interval_id: intervalId,
-      start: start,
-      end: end
+      start: start * 1e6,
+      end: end * 1e6
     });
   }
 
@@ -135,7 +140,12 @@ class SdrService {
       updatedSdrs[data.sdr_id].lna = data.lna;
       updatedSdrs[data.sdr_id].vga = data.vga;
       updatedSdrs[data.sdr_id].amp = data.amp;
-      updatedSdrs[data.sdr_id].intervals = data.intervals;
+      updatedSdrs[data.sdr_id].intervals = [];
+      for (const interval of data.intervals) {
+        updatedSdrs[data.sdr_id].intervals.push(
+          [interval[0] / 1e6, interval[1] / 1e6]
+        );
+      }
       updatedSdrs[data.sdr_id].running = data.running;
       hasChanges = true;
     } else if (data.action === 'spectrum_data') {

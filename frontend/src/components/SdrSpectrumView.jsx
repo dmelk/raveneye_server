@@ -69,7 +69,7 @@ export default function SdrSpectrumView({ sdrId, intervalId, start, end, height 
   // Derived binning (fixed per props)
   const MAX_BINS = 500;
   const BIN_WIDTH_HZ = Math.max(Math.floor((end - start) / MAX_BINS), 300e3);
-  const L = Math.floor((end - start) / BIN_WIDTH_HZ) + 1;
+  const L = (end <= start) ? 1 : Math.floor((end - start) / BIN_WIDTH_HZ) + 1;
 
   // Buffers/flags (no React state)
   const binsRef = useRef(new Float32Array(L).fill(minDbRef.current));

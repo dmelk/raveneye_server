@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Box, Card, CardHeader, CardContent, CardActions,
   Grid, FormControlLabel, Switch, Slider, Button,
-  Typography, ToggleButtonGroup, ToggleButton, Divider, Chip, Stack
+  Typography, ToggleButtonGroup, ToggleButton, Divider, Chip, Stack,
+  Select, MenuItem, InputLabel, FormControl
 } from "@mui/material";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
@@ -11,8 +12,7 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { sdrService } from "../services/sdrService";
 import SdrIntervalView from "./SdrIntervalView";
 
-const LNA_MIN = 0, LNA_MAX = 40;     // dB
-const VGA_MIN = 0, VGA_MAX = 62;     // dB
+const VGA_MIN = 0, VGA_MAX = 60;     // dB
 
 function renderHeader(sdrId, sdr) {
   return (
@@ -45,7 +45,13 @@ function renderHeader(sdrId, sdr) {
 }
 
 export default function SdrView({ sdrId, sdr }) {
-  const [lna, setLna] = useState(sdr.lna);
+  const LNA_OPTIONS = {
+    'hackrf': [0, 8, 16, 24, 32, 40],
+  };
+  const snapToLna = (v) => LNA_OPTIONS[sdr.sdr_type].reduce((a, b) =>
+    Math.abs(b - v) < Math.abs(a - v) ? b : a, LNA_OPTIONS[sdr.sdr_type][0]);
+
+  const [lna, setLna] = useState(snapToLna(sdr.lna));
   const [vga, setVga] = useState(sdr.vga);
   const [amp, setAmp] = useState(sdr.amp);
   const [running, setRunning] = useState(sdr.running);
@@ -129,15 +135,24 @@ export default function SdrView({ sdrId, sdr }) {
       <CardContent>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={3}>
-            <Typography gutterBottom variant="subtitle2">LNA (dB): {lna}</Typography>
-            <Slider
-              value={lna}
-              min={LNA_MIN}
-              max={LNA_MAX}
-              step={1}
-              onChange={(_, v) => setLna(v)}
-              onChangeCommitted={(_, v) => applyConfig(v, vga, amp)}
-            />
+            <Typography gutterBottom variant="subtitle2">LNA (dB)</Typography>
+            <FormControl fullWidth size="small">
+              <InputLabel id={`lna-label-${sdrId}`}>LNA</InputLabel>
+              <Select
+                labelId={`lna-label-${sdrId}`}
+                label="LNA"
+                value={lna}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setLna(next);
+                  applyConfig(next, vga, amp);
+                }}
+              >
+                {LNA_OPTIONS[sdr.sdr_type].map(v => (
+                  <MenuItem key={v} value={v}>{v}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
 
           <Grid item xs={12} md={3}>

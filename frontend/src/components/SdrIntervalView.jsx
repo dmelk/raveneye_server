@@ -9,10 +9,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import SdrSpectrumView from "./SdrSpectrumView";
 
 const fmtHz = (hz) =>
-  hz >= 1e9 ? `${(hz/1e9).toFixed(3)} GHz`
-    : hz >= 1e6 ? `${(hz/1e6).toFixed(3)} MHz`
-      : hz >= 1e3 ? `${(hz/1e3).toFixed(3)} kHz`
-        : `${Math.round(hz)} Hz`;
+  hz >= 1e3 ? `${(hz/1e3).toFixed(3)} GHz`
+        : `${Math.floor(hz)} MHz`;
 
 export default function SdrIntervalView({ sdrId, intervalId, interval, onRemove, onSave }) {
   const [editing, setEditing] = useState(false);
@@ -30,6 +28,10 @@ export default function SdrIntervalView({ sdrId, intervalId, interval, onRemove,
   };
 
   const handleSave = () => {
+    if (start >= stop) {
+      alert('Start must be less than Stop');
+      return;
+    }
     onSave(Number(start), Number(stop));
     setEditing(false);
   };
@@ -69,7 +71,7 @@ export default function SdrIntervalView({ sdrId, intervalId, interval, onRemove,
         <Stack direction="row" spacing={1} alignItems="center">
           <TextField
             size="small"
-            label="Start (Hz)"
+            label="Start (MHz)"
             type="number"
             value={start}
             onChange={(e) => setStart(e.target.value)}
@@ -77,7 +79,7 @@ export default function SdrIntervalView({ sdrId, intervalId, interval, onRemove,
           />
           <TextField
             size="small"
-            label="Stop (Hz)"
+            label="Stop (MHz)"
             type="number"
             value={stop}
             onChange={(e) => setStop(e.target.value)}
@@ -87,7 +89,7 @@ export default function SdrIntervalView({ sdrId, intervalId, interval, onRemove,
 
         {/* Live view */}
         <Box sx={{ mt: 1 }}>
-          <SdrSpectrumView sdrId={sdrId} intervalId={intervalId} start={interval[0]} end={interval[1]} />
+          <SdrSpectrumView sdrId={sdrId} intervalId={intervalId} start={interval[0] * 1e6} end={interval[1] * 1e6} />
         </Box>
       </CardContent>
     </Card>
