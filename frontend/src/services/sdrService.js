@@ -3,6 +3,8 @@ class SdrService {
   constructor() {
     this.apiUrl = '/api/sdr/';
     this.pingLostInterval = null;
+    this.spectrumDataUpdateHandlers = {};
+    this.sdrPingLosts = {};
   }
 
   async listSdr() {
@@ -21,11 +23,12 @@ class SdrService {
         amp: data[sdrId].sdr.amp,
         intervals: data[sdrId].sdr.intervals,
         running: data[sdrId].sdr.running,
-        spectrumData: {},
+        sdr_type: data[sdrId].sdr.sdr_type,
         ping_lost: 0
       }
     }
-    return await sdrs;
+    this.sdrPingLosts = {};
+    return sdrs;
   }
 
   async start(sdrId) {
@@ -36,14 +39,14 @@ class SdrService {
     return this.executeAction(sdrId, 'stop', {});
   }
 
-  async add_interval(sdrId, start, end) {
+  async addInterval(sdrId, start, end) {
     return this.executeAction(sdrId, 'add_interval', {
       start: start,
       end: end
     });
   }
 
-  async change_interval(sdrId, intervalId, start, end) {
+  async changeInterval(sdrId, intervalId, start, end) {
     return this.executeAction(sdrId, 'change_interval', {
       interval_id: intervalId,
       start: start,
@@ -51,13 +54,13 @@ class SdrService {
     });
   }
 
-  async remove_interval(sdrId, intervalId) {
+  async removeInterval(sdrId, intervalId) {
     return this.executeAction(sdrId, 'remove_interval', {
       interval_id: intervalId
     });
   }
 
-  async clear_intervals(sdrId) {
+  async clearIntervals(sdrId) {
     return this.executeAction(sdrId, 'clear_intervals', {});
   }
 
@@ -96,13 +99,17 @@ class SdrService {
 
   pingLostIntervalHandler(prevSdrs) {
     const updatedSdrs = { ...prevSdrs };
+    let hasChanges = false;
     for (const sdrId in updatedSdrs) {
-      updatedSdrs[sdrId].ping_lost++;
-      if (updatedSdrs[sdrId].ping_lost > 5) {
+      this.sdrPingLosts[sdrId] = (this.sdrPingLosts[sdrId] || 0) + 1;
+      if (this.sdrPingLosts[sdrId] > 5) {
+        if (updatedSdrs[sdrId].status !== 'offline') {
+          hasChanges = true;
+        }
         updatedSdrs[sdrId].status = 'offline';
       }
     }
-    return updatedSdrs;
+    return hasChanges ? updatedSdrs : prevSdrs;
   }
 
   addWebsocketHandler(event, handler) {
@@ -115,23 +122,43 @@ class SdrService {
       return prevSdrs;
     }
     const updatedSdrs = { ...prevSdrs };
-    updatedSdrs[data.sdr_id].ping_lost = 0;
-    updatedSdrs[data.sdr_id].sw_version = data.sw_version;
+    this.sdrPingLosts[data.sdr_id] = 0;
 
-    updatedSdrs[data.sdr_id].status = 'online';
+    let hasChanges = false;
+
+    // do not trigger re-render if status is already online
+    if (updatedSdrs[data.sdr_id].status !== 'online') {
+      updatedSdrs[data.sdr_id].status = 'online';
+      hasChanges = true;
+    }
     if (data.action === 'config_changed') {
       updatedSdrs[data.sdr_id].lna = data.lna;
       updatedSdrs[data.sdr_id].vga = data.vga;
       updatedSdrs[data.sdr_id].amp = data.amp;
       updatedSdrs[data.sdr_id].intervals = data.intervals;
       updatedSdrs[data.sdr_id].running = data.running;
+      hasChanges = true;
     } else if (data.action === 'spectrum_data') {
-      if (!updatedSdrs[data.sdr_id].spectrumData[data.interval_id]) {
-        updatedSdrs[data.sdr_id].spectrumData[data.interval_id] = {};
+      // notify spectrum data update handlers to avoid re-rendering the whole component on each data point
+      if (this.spectrumDataUpdateHandlers[data.sdr_id] && this.spectrumDataUpdateHandlers[data.sdr_id][data.interval_id]) {
+        this.spectrumDataUpdateHandlers[data.sdr_id][data.interval_id](data.frequency, data.power);
       }
-      updatedSdrs[data.sdr_id].spectrumData[data.interval_id][data.frequency] = data.power;
     }
-    return updatedSdrs;
+
+    return hasChanges ? updatedSdrs : prevSdrs;
+  }
+  
+  addSpectrumDataUpdateHandler(sdrId, intervalId, handler) {
+    if (!this.spectrumDataUpdateHandlers[sdrId]) {
+      this.spectrumDataUpdateHandlers[sdrId] = {};
+    }
+    this.spectrumDataUpdateHandlers[sdrId][intervalId] = handler;
+  }
+
+  removeSpectrumDataUpdateHandler(sdrId, intervalId) {
+    if (this.spectrumDataUpdateHandlers[sdrId]) {
+      delete this.spectrumDataUpdateHandlers[sdrId][intervalId];
+    }
   }
 
 }
