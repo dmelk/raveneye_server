@@ -75,6 +75,25 @@ export default function MainLayout() {
                 : null
             }
             {
+              environment.features.sdr ?
+                (<ListItem
+                  button
+                  component={Link}
+                  to="/sdr" onClick={() => setDrawerOpen(false)}
+                  sx={{
+                    color: '#fff',
+                    '&:visited': { color: '#fff' },
+                    textDecoration: 'none',
+                  }}
+                >
+                  <ListItemText
+                    primary="SDR"
+                    primaryTypographyProps={{ sx: { color: '#fff' } }}
+                  />
+                </ListItem>)
+                : null
+            }
+            {
               environment.features.logs ?
                 (<ListItem
                   button

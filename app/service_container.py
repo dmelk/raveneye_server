@@ -1,6 +1,7 @@
 import asyncio
 from controllers.scanner_controller import ScannerController
 from controllers.log_controller import LogController
+from controllers.sdr_controller import SdrController
 from services.logger import Logger
 from services.message_bus import MessageBus
 from services.modules_manager import ModulesManager
@@ -47,12 +48,17 @@ class ServiceContainer:
         self.add_service('scanner_controller', scanner_controller)
         log_controller = LogController()
         self.add_service('log_controller', log_controller)
+        sdr_controller = SdrController(self.message_bus(), self.modules_manager())
+        self.add_service('sdr_controller', sdr_controller)
 
     def scanner_controller(self) -> ScannerController:
         return self.get_service('scanner_controller')
 
     def log_controller(self) -> LogController:
         return self.get_service('log_controller')
+
+    def sdr_controller(self) -> SdrController:
+        return self.get_service('sdr_controller')
 
     async def add_mongo_db(self, uri: str, db_name: str):
         mongo_db = MongoDb(uri, db_name)

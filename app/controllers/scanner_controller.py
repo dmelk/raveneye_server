@@ -7,6 +7,7 @@ class ScannerController:
     def __init__(self, message_bus: MessageBus, modules_manager: ModulesManager):
         self._message_bus = message_bus
         self._modules_manager = modules_manager
+        self._topic = 'scanner_in'
 
     async def list(self):
         documents = await ModuleDocument.find(ModuleDocument.type == "scanner").to_list()
@@ -28,38 +29,38 @@ class ScannerController:
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "scan"
-        })
+        }, self._topic)
 
     def next(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "next"
-        })
+        }, self._topic)
 
     def prev(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "prev"
-        })
+        }, self._topic)
 
     def set(self, scanner_id, value):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "set",
             "value": value
-        })
+        }, self._topic)
 
     def stop(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "stop"
-        })
+        }, self._topic)
 
     def skip(self, scanner_id):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "skip"
-        })
+        }, self._topic)
 
     def clear_skip(self, scanner_id, value, all_values):
         self._message_bus.send({
@@ -67,11 +68,11 @@ class ScannerController:
             "action": "clear_skip",
             "value": value,
             "all": all_values
-        })
+        }, self._topic)
 
     def tune(self, scanner_id, value):
         self._message_bus.send({
             "scanner_id": scanner_id,
             "action": "tune",
             "value": value
-        })
+        }, self._topic)

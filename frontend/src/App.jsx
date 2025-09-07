@@ -12,6 +12,7 @@ import MainLayout from "./components/MainLayout";
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import LogsPage from "./pages/LogsPage";
 import {environment} from "./environments/environment";
+import SdrListPage from "./pages/SdrListPage";
 
 function App() {
   useEffect(() => {
@@ -36,6 +37,25 @@ function App() {
         element: <ScannerDetailPage />
       }
     )
+  }
+
+  if (environment.features.sdr) {
+    if (!hasIndex) {
+      hasIndex = true;
+      routes.push(
+        {
+          index: true,
+          element: <SdrListPage />
+        }
+      );
+    } else {
+      routes.push(
+        {
+          path: '/sdr',
+          element: <SdrListPage />
+        }
+      );
+    }
   }
 
   if (environment.features.logs) {

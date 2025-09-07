@@ -19,8 +19,8 @@ class MessageBus:
         self._logger = logger
         self._loop = loop
 
-        self._in_topic = 'scanner_out'
-        self._out_topic = 'scanner_in'
+        self._scanner_topic = 'scanner_out'
+        self._sdr_topic = 'sdr_out'
 
     def start(self):
         self._client = mqtt.Client()
@@ -33,16 +33,24 @@ class MessageBus:
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code", rc)
-        self._client.subscribe(self._in_topic)
+        self._client.subscribe(self._scanner_topic)
+        self._client.subscribe(self._sdr_topic)
 
     def on_message(self, client, userdata, msg):
         payload = json.loads(msg.payload)
-        asyncio.run_coroutine_threadsafe(self.process_message(payload), self._loop)
+        asyncio.run_coroutine_threadsafe(self._process_message(payload, msg.topic), self._loop)
 
-    def send(self, message):
-        self._client.publish(self._out_topic, json.dumps(message))
+    def send(self, message, topic):
+        self._client.publish(topic, json.dumps(message))
 
-    async def process_message(self, message):
-        await self._modules_manager.setup_scanner(message)
-        await self._websocket_manager.send_message(message, 'scanner')
-        await self._logger.scanner_log(message)
+    async def _process_message(self, message, topic):
+        if topic == self._scanner_topic:
+            await self._modules_manager.setup_scanner(message)
+            await self._websocket_manager.send_message(message, 'scanner')
+            await self._logger.scanner_log(message)
+        elif topic == self._sdr_topic:
+            if message["action"] == "ping":
+                await self._modules_manager.setup_sdr(message)
+            elif message["action"] == "config_changed":
+                await self._modules_manager.update_sdr(message)
+            await self._websocket_manager.send_message(message, "sdr.{}".format(message["sdr_id"]))

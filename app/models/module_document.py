@@ -9,6 +9,7 @@ class ModuleDocument(Document):
     sw_version: Optional[str] = None
     serial_number: Optional[str] = None
     tuner: Optional[Dict[str, Any]] = None  # raw associative array
+    sdr: Optional[Dict[str, Any]] = None  # raw associative array
 
     class Settings:
         name = "modules"

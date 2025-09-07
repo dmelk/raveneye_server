@@ -36,3 +36,47 @@ class ModulesManager:
         if module.name != name:
             module.name = name
             await module.save()
+
+    async def setup_sdr(self, sdr_data):
+        sdr_id = sdr_data['sdr_id']
+        current_sdr = await ModuleDocument.find(
+            ModuleDocument.type == "sdr",
+            ModuleDocument.module_id == sdr_id
+        ).first_or_none()
+        if current_sdr is None:
+            current_sdr = ModuleDocument(
+                module_id=sdr_id,
+                name=sdr_id,
+                type="sdr",
+                status='waiting',
+                sw_version=sdr_data['sw_version'],
+                serial_number=sdr_data.get('serial_number', ''),
+                sdr={
+                    "intervals": sdr_data["intervals"],
+                    "running": sdr_data["running"],
+                    "lna": sdr_data["lna"],
+                    "vga": sdr_data["vga"],
+                    "amp": sdr_data["amp"],
+                    "sdr_type": sdr_data["sdr_type"],
+                }
+            )
+            await current_sdr.insert()
+
+    async def update_sdr(self, sdr_data):
+        sdr_id = sdr_data['sdr_id']
+        current_sdr = await ModuleDocument.find(
+            ModuleDocument.type == "sdr",
+            ModuleDocument.module_id == sdr_id
+        ).first_or_none()
+        if current_sdr:
+            current_sdr.sw_version = sdr_data['sw_version']
+            current_sdr.serial_number = sdr_data.get('serial_number', '')
+            current_sdr.sdr = {
+                "intervals": sdr_data["intervals"],
+                "running": sdr_data["running"],
+                "lna": sdr_data["lna"],
+                "vga": sdr_data["vga"],
+                "amp": sdr_data["amp"],
+                "sdr_type": sdr_data["sdr_type"],
+            }
+            await current_sdr.save()
